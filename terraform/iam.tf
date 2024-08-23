@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "s3_document" {
     resources = ["${aws_s3_bucket.data_ingestion.arn}/*"]
     }
     statement {
-    actions = ["s3:ListAllMyBuckets", "s3:ListBucket"]
+    actions = ["s3:ListAllMyBuckets", "s3:ListBucket", "s3:*Object"]
 	resources =  ["*"]
     }
 }

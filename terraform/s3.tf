@@ -8,13 +8,23 @@ resource "aws_s3_bucket" "data_ingestion" {
     }
 }
 
+resource "aws_s3_bucket" "data_transform" {
+    bucket_prefix = "totes-transform-"
+    force_destroy = true
+
+    tags = {
+        Name ="DataTransformBucket"
+        Environment = "Transform"
+    }
+}
+
 resource "aws_s3_bucket" "code_bucket" {
     bucket_prefix = "totes-lambda-code-"
     force_destroy = true
 
     tags = {
         Name = "LambdaCodeBucket"
-        Environment = "Extract"
+        Environment = "Production"
     }
 }
 
