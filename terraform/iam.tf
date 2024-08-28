@@ -122,4 +122,42 @@ resource "aws_iam_role_policy_attachment" "lambda_cw_policy_attachment" {
 }
 
 
+resource "aws_lambda_permission" "allow_s3_data_to_trigger_transform" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.task_transform.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.data_ingestion.arn
+}
 
+resource "aws_s3_bucket_notification" "bucket_notification_uploaded_to_data_ingestion" {
+  bucket = aws_s3_bucket.data_ingestion.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.task_transform.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_s3_data_to_trigger_transform]
+}
+
+
+
+resource "aws_lambda_permission" "allow_s3_processed_to_trigger_load" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.task_load.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.processed_bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification_uploaded_to_data_processed" {
+  bucket = aws_s3_bucket.processed_bucket.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.task_load.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_s3_processed_to_trigger_load]
+}
