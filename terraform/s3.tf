@@ -18,6 +18,16 @@ resource "aws_s3_bucket" "code_bucket" {
     }
 }
 
+resource "aws_s3_bucket" "processed_bucket" {
+    bucket_prefix = "totes-processed-data-"
+    force_destroy = true
+
+    tags = {
+        Name = "DataProcessedBucket"
+        Environment = "Transform"
+    }
+}
+
 # resource "aws_s3_bucket" "state_bucket" {
 #     bucket = "terraform-state-bucket-for-sidley"
 
