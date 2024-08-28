@@ -28,7 +28,7 @@ def connect_to_db(credentials):
         )
         return connection
     except Exception as e:
-        logger.error(f"Error connecting to the database: {e}")
+        logger.error("Error connecting to the database: %s", e)
         raise
 
 def process_gzip_file(connection, bucket_name, object_key, credentials):
@@ -39,17 +39,15 @@ def process_gzip_file(connection, bucket_name, object_key, credentials):
         s3_object = s3_client.get_object(Bucket=bucket_name, Key=object_key)
         with gzip.GzipFile(fileobj=io.BytesIO(s3_object['Body'].read())) as gzipfile:
             content = gzipfile.read().decode('utf-8')
-        
         table_name = determine_table_name(object_key)
-        
         if table_name:
-            logger.info(f"Inserting data into table {table_name}")
+            logger.info("Inserting data into table %s", table_name)
             insert_data_into_db(connection, content, credentials['schema'], table_name)
         else:
-            logger.warning(f"Unrecognized file {object_key}. Skipping.")
+            logger.warning("Unrecognized file %s. Skipping.", object_key)
 
     except Exception as e:
-        logger.error(f"Error processing file {object_key} from bucket {bucket_name}: {e}")
+        logger.error("Error processing file %s from bucket %s: %s", object_key, bucket_name, e)
         raise
 
 def determine_table_name(object_key):
@@ -80,11 +78,10 @@ def insert_data_into_db(connection, content, schema, table_name):
         for row in data:
             values = row.split(',')
             cursor.execute(insert_query, values)
-        
         connection.commit()
-        logger.info(f"Data successfully inserted into table {table_name}")
+        logger.info("Data successfully inserted into table %s", table_name)
     except Exception as e:
-        logger.error(f"Error inserting data into table {table_name}: {e}")
+        logger.error("Error inserting data into table %s: %s", table_name, e)
         connection.rollback()
         raise
     finally:

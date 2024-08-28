@@ -6,6 +6,7 @@ from .helpers import get_secret, connect_to_db, process_gzip_file
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# pylint: disable=unused-argument
 def lambda_handler(event, context):
     """Lambda function that retrieves secrets from AWS, uses them to connect
     to our data warehouse, connects to a processed s3 bucket, and uploads
@@ -39,5 +40,5 @@ def lambda_handler(event, context):
             'body': 'Files processed successfully.'
         }
     except Exception as e:
-        logger.error(f"Error processing event: {e}")
+        logger.error("Error processing event: %s", e)
         raise
